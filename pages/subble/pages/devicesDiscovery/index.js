@@ -274,8 +274,8 @@ Page({
         var idx = inArray(that.data.connectedBles, "deviceId", deviceId)
         if (idx != -1) {
           that.setData({
-            // [`connectedBles`]: that.data[`connectedBles`].splice(0, idx).concat(that.data[`connectedBles`].splice(idx + 1)),
-            [`connectedBles[${idx}].connected`]: false
+            [`connectedBles`]: that.data[`connectedBles`].splice(0, idx).concat(that.data[`connectedBles`].splice(idx + 1)),
+            // [`connectedBles[${idx}].connected`]: false
           })
         
         }

@@ -64,3 +64,9 @@ page {
   border: 1px solid blue;
   padding-bottom: 5rpx;
 }
+.item3 {
+  font-size: 12px;
+  margin: 5rpx;
+  border: 1px solid hotpink;
+  padding-bottom: 5rpx;
+}

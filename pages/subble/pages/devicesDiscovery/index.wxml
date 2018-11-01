@@ -18,7 +18,7 @@
   <button style="font-size: 16px" size='mini' bindtap="startBluetoothDevicesDiscovery">开始扫描</button>
   <button style="font-size: 16px" size='mini' bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
   <button style="font-size: 16px" size='mini' bindtap="closeBluetoothAdapter">关闭蓝牙适配器</button>
-  <button style="font-size: 16px" size='mini' bindtap="getConnectedBluetoothDevices">获取已连接设备</button>
+  <button style="font-size: 16px" size='mini' bindtap="getConnectedBluetoothDevices">获取已连接设备:{{getConnectedBluetoothDevices.length}}</button>
   <view class='item' wx:for="{{getConnectedBluetoothDevices}}" wx:key="{{index}}">
     <view>{{item.name}}</view>
     <view>{{item.deviceId}}</view>
@@ -48,26 +48,29 @@
       <view>connected: {{item.connected}}</view>
       <button size='mini' bindtap='closeBLEConnection' data-deviceid='{{item.deviceId}}' data-connected='{{item.connected}}'>{{item.connected?"断开":"连接"}}</button>
       <view class='item' wx:for="{{item.services}}" wx:for-item="content" wx:key="{{index}}" wx:for-index="indexy">
-        <view>service[{{indexy}}]uuid: {{content.uuid}}</view>
+        <view style="font-size: 14px; color:green">service[{{indexy}}]</view>
+        <view>uuid: {{content.uuid}}</view>
         <view>isPrimary: {{content.isPrimary}}</view>
         <view class='item2' wx:for="{{content.characteristics}}" wx:for-item="char" wx:key="{{index}}" wx:for-index="indexz">
-          <view>characteristic[{{indexz}}]uuid: {{char.uuid}}</view>
+          <view style="font-size: 13px; color:blue">characteristic[{{indexz}}]</view>
+          <view>uuid: {{char.uuid}}</view>
           <view>properties: {{utils.toString(char.properties)}}</view>
-          <view wx:if="{{char.properties.notify||char.properties.indicate}}">
-            <view>Notification</view>
-            <view>value:{{char.enable?char.valuen:"notification disenabled"}}</view>
-            <button bindtap='notifyBLECharacteristicValueChange' data-characteristic='{{char}}' 
-            data-index='{{[indexx,indexy,indexz]}}' 
-            data-serviceuuid='{{content.uuid}}' data-deviceid='{{item.deviceId}}'>notifycation enable:{{char.enable}}</button>
+          <view class='item3' wx:if="{{char.properties.notify||char.properties.indicate}}">
+
+            <view >Notification:</view>
+            <view style=" margin-left: 10px;">value:{{char.enable?char.valuen:"notification disenabled"}}</view>
+            <button bindtap='notifyBLECharacteristicValueChange' data-characteristic='{{char}}' data-index='{{[indexx,indexy,indexz]}}' data-serviceuuid='{{content.uuid}}' data-deviceid='{{item.deviceId}}'>notifycation enable:{{char.enable}}</button>
           </view>
-          <view wx:if="{{char.properties.read}}">
-            <view>Read</view>
-            <view>value:{{char.valuer}}</view>
+
+          <view class='item3' wx:if="{{char.properties.read}}">
+            <view>Read:</view>
+            <view style=" margin-left: 10px;">value:{{char.valuer}}</view>
             <button bindtap='readBLECharacteristicValue'>Read</button>
           </view>
-          <view wx:if="{{char.properties.write}}">
-            <view>Write</view>
-            <view>value:{{char.valuew}}</view>
+
+          <view class='item3' wx:if="{{char.properties.write}}">
+            <view>Write:</view>
+            <view style=" margin-left: 10px;">value:{{char.valuew}}</view>
             <button bindtap='writeBLECharacteristicValue'>Write</button>
           </view>
         </view>
