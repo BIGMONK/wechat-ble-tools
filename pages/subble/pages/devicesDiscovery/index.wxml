@@ -1,0 +1,78 @@
+<!--pages/subble/devicesDiscovery/index.wxml-->
+<wxs module="utils">
+  module.exports.max = function(n1, n2) {
+    return Math.max(n1, n2)
+  }
+  module.exports.len = function(arr) {
+    arr = arr || []
+    return arr.length
+  }
+  module.exports.toString = function(o) {
+    return JSON.stringify(o)
+  }
+</wxs>
+<scroll-view>
+  <button style="font-size: 16px" size='mini' bindtap="openBluetoothAdapter">初始化蓝牙适配器</button>
+  <button style="font-size: 16px" size='mini' bindtap="getBluetoothAdapterState">获取蓝牙适配器状态</button>
+  <view style="font-size: 16px">蓝牙适配器状态:discovering：{{discovering}} available：{{available}}</view>
+  <button style="font-size: 16px" size='mini' bindtap="startBluetoothDevicesDiscovery">开始扫描</button>
+  <button style="font-size: 16px" size='mini' bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
+  <button style="font-size: 16px" size='mini' bindtap="closeBluetoothAdapter">关闭蓝牙适配器</button>
+  <button style="font-size: 16px" size='mini' bindtap="getConnectedBluetoothDevices">获取已连接设备</button>
+  <view class='item' wx:for="{{getConnectedBluetoothDevices}}" wx:key="{{index}}">
+    <view>{{item.name}}</view>
+    <view>{{item.deviceId}}</view>
+  </view>
+  <view class="devices_summary">已发现 {{devices.length}} 个外围设备：</view>
+  <scroll-view class="device_list" scroll-y scroll-with-animation>
+    <view wx:for="{{devices}}" wx:key="index" data-device-id="{{item.deviceId}}" data-name="{{item.name || item.localName}}" bindtap="createBLEConnection" class="device_item" hover-class="device_item_hover">
+      <view style="font-size: 16px; color: #333;">name:{{item.name}}</view>
+      <view style="font-size: 10px">localName: {{item.localName}}</view>
+      <view style="font-size: 10px">RSSI: {{item.RSSI}}dBm ({{utils.max(0, item.RSSI + 100)}}%)</view>
+      <view style="font-size: 10px">deviceId: {{item.deviceId}}</view>
+      <view style="font-size: 10px">serviceData: {{utils.toString(item.serviceData)}}</view>
+      <view style="font-size: 10px">advertisData: {{utils.toString(item.advertisData)}}</view>
+      <view>
+        <view style="font-size: 10px">advertisServiceUUIDs数量: {{utils.len(item.advertisServiceUUIDs)}}</view>
+        <view wx:for="{{item.advertisServiceUUIDs}}" wx:for-item="uuid" wx:key="index" style="font-size: 12px; margin-left: 10px;">
+          <view style="font-size: 10px">UUID{{index}}:{{uuid}}</view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  <view class="devices_summary">已连接 {{connectedBles.length}} 个外围设备：</view>
+  <scroll-view class="device_list" scroll-y scroll-with-animation>
+    <view class='connectedBles' wx:for="{{connectedBles}}" wx:key="{{index}}" wx:for-index="indexx" style="font-size: 12px; margin-top: 10px;">
+      <view>name: {{item.name}}</view>
+      <view>deviceId: {{item.deviceId}}</view>
+      <view>connected: {{item.connected}}</view>
+      <button size='mini' bindtap='closeBLEConnection' data-deviceid='{{item.deviceId}}' data-connected='{{item.connected}}'>{{item.connected?"断开":"连接"}}</button>
+      <view class='item' wx:for="{{item.services}}" wx:for-item="content" wx:key="{{index}}" wx:for-index="indexy">
+        <view>service[{{indexy}}]uuid: {{content.uuid}}</view>
+        <view>isPrimary: {{content.isPrimary}}</view>
+        <view class='item2' wx:for="{{content.characteristics}}" wx:for-item="char" wx:key="{{index}}" wx:for-index="indexz">
+          <view>characteristic[{{indexz}}]uuid: {{char.uuid}}</view>
+          <view>properties: {{utils.toString(char.properties)}}</view>
+          <view wx:if="{{char.properties.notify||char.properties.indicate}}">
+            <view>Notification</view>
+            <view>value:{{char.enable?char.valuen:"notification disenabled"}}</view>
+            <button bindtap='notifyBLECharacteristicValueChange' data-characteristic='{{char}}' 
+            data-index='{{[indexx,indexy,indexz]}}' 
+            data-serviceuuid='{{content.uuid}}' data-deviceid='{{item.deviceId}}'>notifycation enable:{{char.enable}}</button>
+          </view>
+          <view wx:if="{{char.properties.read}}">
+            <view>Read</view>
+            <view>value:{{char.valuer}}</view>
+            <button bindtap='readBLECharacteristicValue'>Read</button>
+          </view>
+          <view wx:if="{{char.properties.write}}">
+            <view>Write</view>
+            <view>value:{{char.valuew}}</view>
+            <button bindtap='writeBLECharacteristicValue'>Write</button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+  </scroll-view>
+</scroll-view>
