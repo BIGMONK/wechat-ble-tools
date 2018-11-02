@@ -157,7 +157,7 @@ Page({
       util.log('startBluetoothDevicesDiscovery _discoveryStarted=' + this._discoveryStarted)
       return
     }
-    
+
     wx.startBluetoothDevicesDiscovery({
       allowDuplicatesKey: true,
       success: (res) => {
@@ -193,7 +193,7 @@ Page({
   onBluetoothDeviceFound() {
     util.log('onBluetoothDeviceFound ')
     wx.onBluetoothDeviceFound((res) => {
-      // util.log('onBluetoothDeviceFound '+ res)
+      util.log('onBluetoothDeviceFound '+ res)
       res.devices.forEach(device => {
         if (!device.name && !device.localName) {
           return
@@ -374,7 +374,6 @@ Page({
           if (idy > -1) { //服务存在
             var chars = that.data.connectedBles[idx].services[idy].characteristics
             if (chars) { //通道集合存在
-
               for (let i = 0; i < res.characteristics.length; i++) {
                 let item = res.characteristics[i]
                 var idz = inArray(that.data.connectedBles[idx].services[idy].characteristics, "uuid", item.uuid)
@@ -418,7 +417,7 @@ Page({
           discovering: false,
           available: false,
           connectedBles: [],
-          getConnectedBluetoothDevices:[]
+          getConnectedBluetoothDevices: []
         })
       },
       fail: function(res) {
@@ -567,5 +566,10 @@ Page({
         this.dealBleMsg(res)
       }
     })
-  }
+  },
+  // openFilter: function(res) {    
+  //   this.setData({
+  //     filte: res.detail.value
+  //   })
+  // }
 })
