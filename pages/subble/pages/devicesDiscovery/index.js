@@ -127,13 +127,6 @@ Page({
           [`connectedBles[${idx}].connected`]: res.connected
         })
       }
-      // var idx = inArray(that.data.connectedBles, "deviceId", deviceId)
-      // if (idx != -1) {
-      //   that.setData({
-      //     [`connectedBles`]: that.data[`connectedBles`].splice(0, idx).concat(that.data[`connectedBles`].splice(idx + 1))
-      //   })
-
-      // }
     })
 
   },
@@ -186,7 +179,7 @@ Page({
       success: function(res) {
         util.log('stopBluetoothDevicesDiscovery success:' + JSON.stringify(res))
       },
-      fail: function(res) {
+      fail: res => {
         util.log('stopBluetoothDevicesDiscovery fail:' + JSON.stringify(res))
         // util.showToastNone(res.errMsg)
         this.dealBleMsg(res)
@@ -262,31 +255,31 @@ Page({
   /**
    * 断开/连接蓝牙
    */
-  closeBLEConnection:function(res) {
-    var that=this
-    var deviceId=res.currentTarget.dataset.deviceid
+  closeBLEConnection: function(res) {
+    var that = this
+    var deviceId = res.currentTarget.dataset.deviceid
     var connected = res.currentTarget.dataset.connected
-    if(connected){
-    wx.closeBLEConnection({
-      deviceId: deviceId,
-      success: res => {
-        util.log('closeBLEConnection success:' + JSON.stringify(res))
-        var idx = inArray(that.data.connectedBles, "deviceId", deviceId)
-        if (idx != -1) {
-          that.setData({
-            [`connectedBles`]: that.data[`connectedBles`].splice(0, idx).concat(that.data[`connectedBles`].splice(idx + 1)),
-            // [`connectedBles[${idx}].connected`]: false
-          })
-        
+    if (connected) {
+      wx.closeBLEConnection({
+        deviceId: deviceId,
+        success: res => {
+          util.log('closeBLEConnection success:' + JSON.stringify(res))
+          var idx = inArray(that.data.connectedBles, "deviceId", deviceId)
+          if (idx != -1) {
+            that.setData({
+              [`connectedBles`]: that.data[`connectedBles`].splice(0, idx).concat(that.data[`connectedBles`].splice(idx + 1)),
+              // [`connectedBles[${idx}].connected`]: false
+            })
+
+          }
+        },
+        fail: res => {
+          util.log('closeBLEConnection fail:' + JSON.stringify(res))
+          // util.showToastNone(res.errMsg)
+          this.dealBleMsg(res)
         }
-      },
-      fail: res => {
-        util.log('closeBLEConnection fail:' + JSON.stringify(res))
-        // util.showToastNone(res.errMsg)
-        this.dealBleMsg(res)
-      }
       })
-    }else{
+    } else {
       wx.createBLEConnection({
         deviceId,
         success: (res) => {
@@ -294,7 +287,7 @@ Page({
           if (idx === -1) {
             this.setData({
               [`connectedBles[${that.data.connectedBles.length}]`]: {
-                deviceId: deviceId,               
+                deviceId: deviceId,
                 connected: true
               }
             })
@@ -312,7 +305,7 @@ Page({
         }
       })
       this.stopBluetoothDevicesDiscovery()
-    }   
+    }
   },
 
 
@@ -411,33 +404,7 @@ Page({
     })
   },
 
-  sendResToDevice() {
-    this.writeBLECharacteristicValue()
-  },
-  /**
-   * 向低功耗蓝牙设备特征值中写入二进制数据。注意：必须设备的特征值支持 write 才可以成功调用。
-   */
-  writeBLECharacteristicValue(r) {
-    // 向蓝牙设备发送一个0x00的16进制数据
-    var bb = constant.makeBleData(r)
-    this.setData({
-      res: bb[1]
-    })
-    wx.writeBLECharacteristicValue({
-      deviceId: this._deviceId,
-      serviceId: this._serviceId,
-      characteristicId: this._characteristicId,
-      value: bb[0],
-      success: res => {
-        util.log('writeBLECharacteristicValue success :' + JSON.stringify(res))
-      },
-      fail: res => {
-        util.log('writeBLECharacteristicValue fail:' + JSON.stringify(res))
-        // util.showToastNone(res.errMsg)
-        this.dealBleMsg(res)
-      }
-    })
-  },
+
   /**
    * 关闭蓝牙适配器
    */
@@ -449,13 +416,14 @@ Page({
         that.setData({
           discovering: false,
           available: false,
-          [`connectedBles`]: []
+          connectedBles: [],
+          getConnectedBluetoothDevices:[]
         })
       },
       fail: function(res) {
         util.log('closeBluetoothAdapter fail:' + JSON.stringify(res))
         // util.showToastNone(res.errMsg)
-        this.dealBleMsg(res)
+        that.dealBleMsg(res)
       }
     })
     this._discoveryStarted = false
@@ -502,48 +470,13 @@ Page({
       code == 10009 ? 'Android 系统特有，系统版本低于 4.3 不支持 BLE' : "未知异常"
     else
       msg = res.errMsg
-    util.log("dealBleErrCode " + msg)
-    util.showToastNone(msg)
+    // util.log("dealBleErrCode " + msg)
+    util.showToastNone(msg + "(" + res.errMsg + ")")
   },
-
-
-  // for (let i = 0; i < res.characteristics.length; i++) {
-  //   let item = res.characteristics[i]
-  //   if (item.properties.read) {
-  //     wx.readBLECharacteristicValue({
-  //       deviceId,
-  //       serviceId,
-  //       characteristicId: item.uuid,
-  //     })
-  //   }
-  //   if (item.properties.write) {
-  //     this.setData({
-  //       canWrite: true
-  //     })
-  //     this._deviceId = deviceId
-  //     this._serviceId = serviceId
-  //     this._characteristicId = item.uuid
-  //     // this.writeBLECharacteristicValue(0)
-  //   }
-  //   if (item.properties.notify || item.properties.indicate) {
-  //     //启用低功耗蓝牙设备特征值变化时的 notify 功能，订阅特征值。注意：必须设备的特征值支持 notify 或者 indicate 才可以成功调用。
-  //     // 另外，必须先启用 notifyBLECharacteristicValueChange 才能监听到设备 characteristicValueChange 事件
-  //     wx.notifyBLECharacteristicValueChange({
-  //       deviceId,
-  //       serviceId,
-  //       characteristicId: item.uuid,
-  //       state: true,
-  //       success: res => {
-  //         util.log('notifyBLECharacteristicValueChange success:' + JSON.stringify(res))
-  //       },
-  //       fail: res => {
-  //         util.log('notifyBLECharacteristicValueChange fail:' + JSON.stringify(res))
-  //         // util.showToastNone(res.errMsg)
-  //         this.dealBleMsg(res)
-  //       }
-  //     })
-  //   }
-  // }
+  /**
+   * 启用/停止低功耗蓝牙设备特征值变化时的 notify 功能，订阅特征值。注意：必须设备的特征值支持 notify 或者 indicate 才可以成功调用。
+   * 另外，必须先启用 notifyBLECharacteristicValueChange 才能监听到设备 characteristicValueChange 事件
+   */
   notifyBLECharacteristicValueChange: function(res) {
     util.log("notifyBLECharacteristicValueChange:" + JSON.stringify(res))
     var that = this
@@ -556,8 +489,7 @@ Page({
     var idy = parseInt(item.index[1])
     var idz = parseInt(item.index[2])
     if (item.characteristic.properties.notify || item.characteristic.properties.indicate) {
-      //启用低功耗蓝牙设备特征值变化时的 notify 功能，订阅特征值。注意：必须设备的特征值支持 notify 或者 indicate 才可以成功调用。
-      // 另外，必须先启用 notifyBLECharacteristicValueChange 才能监听到设备 characteristicValueChange 事件
+
       wx.notifyBLECharacteristicValueChange({
         deviceId,
         serviceId,
@@ -579,9 +511,60 @@ Page({
   },
   readBLECharacteristicValue: function(res) {
     util.log("readBLECharacteristicValue:" + JSON.stringify(res))
+    var item = res.currentTarget.dataset
+    var deviceId = item.deviceid
+    var serviceId = item.serviceuuid
+    var characteristicId = item.characteristic.uuid
+    var idx = parseInt(item.index[0])
+    var idy = parseInt(item.index[1])
+    var idz = parseInt(item.index[2])
+    wx.readBLECharacteristicValue({
+      deviceId: deviceId,
+      serviceId: serviceId,
+      characteristicId: characteristicId,
+      success: res => {
+        util.log("readBLECharacteristicValue:" + JSON.stringify(res))
+        // ab2hex(characteristic.value)
+        this.setData({
+          [`connectedBles[${idx}].services[${idy}].characteristics[${idz}].valuer`]: JSON.stringify(res)
+        })
+      },
+      fail: res => {
+        this.setData({
+          [`connectedBles[${idx}].services[${idy}].characteristics[${idz}].valuer`]: JSON.stringify(res)
+        })
+      }
+    })
   },
   writeBLECharacteristicValue: function(res) {
     util.log("writeBLECharacteristicValue:" + JSON.stringify(res))
-  },
-
+    var item = res.currentTarget.dataset
+    var deviceId = item.deviceid
+    var serviceId = item.serviceuuid
+    var characteristicId = item.characteristic.uuid
+    var idx = parseInt(item.index[0])
+    var idy = parseInt(item.index[1])
+    var idz = parseInt(item.index[2])
+    var bb = constant.makeBleData()
+    wx.writeBLECharacteristicValue({
+      deviceId: deviceId,
+      serviceId: serviceId,
+      characteristicId: characteristicId,
+      value: bb[0],
+      success: res => {
+        util.log('writeBLECharacteristicValue success :' + JSON.stringify(res))
+        this.setData({
+          [`connectedBles[${idx}].services[${idy}].characteristics[${idz}].valuew`]: bb[1] + "  " + JSON.stringify(res)
+        })
+      },
+      fail: res => {
+        util.log('writeBLECharacteristicValue fail:' + JSON.stringify(res))
+        // util.showToastNone(res.errMsg)
+        this.setData({
+          [`connectedBles[${idx}].services[${idy}].characteristics[${idz}].valuew`]: bb[1] + "  " + JSON.stringify(res)
+        })
+        this.dealBleMsg(res)
+      }
+    })
+  }
 })

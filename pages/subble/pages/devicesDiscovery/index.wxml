@@ -41,7 +41,7 @@
     </view>
   </scroll-view>
   <view class="devices_summary">已连接 {{connectedBles.length}} 个外围设备：</view>
-  <scroll-view class="device_list" scroll-y scroll-with-animation>
+  <scroll-view class="device_list2" scroll-y scroll-with-animation>
     <view class='connectedBles' wx:for="{{connectedBles}}" wx:key="{{index}}" wx:for-index="indexx" style="font-size: 12px; margin-top: 10px;">
       <view>name: {{item.name}}</view>
       <view>deviceId: {{item.deviceId}}</view>
@@ -57,7 +57,7 @@
           <view>properties: {{utils.toString(char.properties)}}</view>
           <view class='item3' wx:if="{{char.properties.notify||char.properties.indicate}}">
 
-            <view >Notification:</view>
+            <view>Notification:</view>
             <view style=" margin-left: 10px;">value:{{char.enable?char.valuen:"notification disenabled"}}</view>
             <button bindtap='notifyBLECharacteristicValueChange' data-characteristic='{{char}}' data-index='{{[indexx,indexy,indexz]}}' data-serviceuuid='{{content.uuid}}' data-deviceid='{{item.deviceId}}'>notifycation enable:{{char.enable}}</button>
           </view>
@@ -65,13 +65,13 @@
           <view class='item3' wx:if="{{char.properties.read}}">
             <view>Read:</view>
             <view style=" margin-left: 10px;">value:{{char.valuer}}</view>
-            <button bindtap='readBLECharacteristicValue'>Read</button>
+            <button bindtap='readBLECharacteristicValue' data-deviceid='{{item.deviceId}}' data-index='{{[indexx,indexy,indexz]}}' data-serviceuuid='{{content.uuid}}' data-characteristic='{{char}}'>Read</button>
           </view>
 
           <view class='item3' wx:if="{{char.properties.write}}">
             <view>Write:</view>
             <view style=" margin-left: 10px;">value:{{char.valuew}}</view>
-            <button bindtap='writeBLECharacteristicValue'>Write</button>
+            <button data-deviceid='{{item.deviceId}}' data-serviceuuid='{{content.uuid}}' data-index='{{[indexx,indexy,indexz]}}' data-characteristic='{{char}}' bindtap='writeBLECharacteristicValue'>Write</button>
           </view>
         </view>
       </view>

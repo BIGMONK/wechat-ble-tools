@@ -11,7 +11,15 @@ page {
 }
 
 .device_list {
-  height: 300px;
+  height: 300rpx;
+  margin: 20rpx 00rpx;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  width: auto;
+  background: gold;
+}
+.device_list2 {
+  height: 1200rpx;
   margin: 20rpx 00rpx;
   border: 1px solid #eee;
   border-radius: 5px;
