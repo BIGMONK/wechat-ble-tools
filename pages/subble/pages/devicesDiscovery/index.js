@@ -157,11 +157,12 @@ Page({
       util.log('startBluetoothDevicesDiscovery _discoveryStarted=' + this._discoveryStarted)
       return
     }
-    this._discoveryStarted = true
+    
     wx.startBluetoothDevicesDiscovery({
       allowDuplicatesKey: true,
       success: (res) => {
         util.log('startBluetoothDevicesDiscovery success' + JSON.stringify(res))
+        // this._discoveryStarted = true
         this.onBluetoothDeviceFound()
       },
       fail: res => {
